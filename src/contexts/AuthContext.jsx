@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getUserLogged } from '../utils/api';
+import { getUserLogged, logout as apiLogout, login as apiLogin, register as apiRegister, updateUserProfile as apiUpdateProfile } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('accessToken');
         if (token) {
           const result = await getUserLogged();
-          if (!result.error) {
+          if (!result.error && result.data) {
             setAuthUser(result.data);
           }
         }
@@ -27,10 +27,39 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
+  const login = async (credentials) => {
+    const res = await apiLogin(credentials);
+    if (!res.error && res.data) {
+      setAuthUser(res.data.user);
+    }
+    return res;
+  };
+
+  const register = async (userData) => {
+    return await apiRegister(userData);
+  };
+
+  const logout = () => {
+    apiLogout();
+    setAuthUser(null);
+  };
+
+  const updateProfile = async (fields) => {
+    const res = await apiUpdateProfile(fields);
+    if (!res.error && res.data) {
+      setAuthUser(res.data);
+    }
+    return res;
+  };
+
   const value = {
     authUser,
     setAuthUser,
-    initializing
+    initializing,
+    login,
+    register,
+    logout,
+    updateProfile
   };
 
   return (

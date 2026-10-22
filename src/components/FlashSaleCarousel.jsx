@@ -1,28 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLocale } from "../contexts/LocaleContext";
-import { Clock, ArrowRight } from "lucide-react";
-import "../styles/style.css";
+import { Clock, Zap, ArrowRight, Flame } from "lucide-react";
 
 export default function FlashSaleCarousel({ items = [] }) {
   const { locale } = useLocale();
   const [timeLeft, setTimeLeft] = useState({
-    hours: "05",
-    minutes: "32", 
-    seconds: "15"
+    hours: "04",
+    minutes: "48", 
+    seconds: "22"
   });
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         let { hours, minutes, seconds } = prev;
-        
         let sec = parseInt(seconds);
         let min = parseInt(minutes);
         let hr = parseInt(hours);
         
         sec--;
-        
         if (sec < 0) {
           sec = 59;
           min--;
@@ -48,7 +45,6 @@ export default function FlashSaleCarousel({ items = [] }) {
 
   const handleImageError = (e) => {
     e.target.src = '/images/placeholder.jpg';
-    e.target.className = 'image-error';
   };
 
   const calculateDiscount = (currentPrice, originalPrice) => {
@@ -57,113 +53,124 @@ export default function FlashSaleCarousel({ items = [] }) {
   };
 
   return (
-    <div className="flash-sale-section-wrapper">
-      <div className="flash-sale-section">
-        <div className="flash-sale-header">
-          <div className="flash-sale-title">
-            <h2>⚡ {locale === "id" ? "Flash Sale" : "Flash Sale"}</h2>
-            <div className="flash-sale-subtitle">
-              {locale === "id" 
-                ? "Diskon spesial untuk waktu terbatas - Jangan sampai kehabisan!" 
-                : "Special discounts for limited time - Don't miss out!"
-              }
-            </div>
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 via-red-600 to-amber-600 p-5 sm:p-7 text-white shadow-xl">
+      {/* Background Decor */}
+      <div className="absolute -right-16 -top-16 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      {/* Header & Countdown */}
+      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-amber-300 shadow-inner flex items-center justify-center">
+            <Zap size={24} className="fill-amber-300 animate-bounce" />
           </div>
-          <div className="flash-sale-controls">
-            <div className="countdown-timer">
-              <div className="countdown-label">
-                <Clock size={14} style={{ display: 'inline', marginRight: '4px' }} />
-                {locale === "id" ? "Berakhir dalam:" : "Ends in:"}
-              </div>
-              <div className="countdown-display">
-                <span className="time-unit">{timeLeft.hours}</span>
-                <span className="time-separator">:</span>
-                <span className="time-unit">{timeLeft.minutes}</span>
-                <span className="time-separator">:</span>
-                <span className="time-unit">{timeLeft.seconds}</span>
-              </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
+                Flash Sale
+              </h2>
+              <span className="flex items-center gap-1 bg-amber-400 text-rose-900 font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <Flame size={12} className="fill-rose-900" /> Hot
+              </span>
             </div>
-            <Link to="/flash-sale" className="see-all-btn">
-              {locale === "id" ? "Lihat Semua" : "See All"}
-              <ArrowRight size={16} />
-            </Link>
+            <p className="text-xs sm:text-sm text-rose-100 font-medium">
+              {locale === "id" 
+                ? "Diskon eksklusif terbatas hari ini, jangan sampai kehabisan!" 
+                : "Limited-time deals, grab yours before it ends!"}
+            </p>
           </div>
         </div>
 
-        <div className="flash-sale-container">
-          <div className="flash-sale-grid">
-            {items.map((item, index) => {
-              const originalPrice = (item.price || 0) * 1.25;
-              const discountPercent = calculateDiscount(item.price, originalPrice);
-              const soldPercentage = Math.min(65 + (index * 5), 95); // Dynamic untuk demo
-              const stockLeft = Math.max(15 - index, 5); // Dynamic untuk demo
-              
-              return (
-                <Link 
-                  key={item.id} 
-                  to={`/products/${item.id}`}
-                  className="flash-sale-card"
-                >
-                  <div className="card-badge-container">
-                    <div className="flash-sale-badge">
-                      -{discountPercent}%
-                    </div>
-                    {index < 3 && <div className="hot-badge">HOT</div>}
-                  </div>
-                  
-                  <div className="card-image-wrapper">
-                    <img 
-                      src={item.image} 
-                      alt={item.title}
-                      onError={handleImageError}
-                      loading="lazy"
-                      className="product-image"
-                    />
-                  </div>
-                  
-                  <div className="card-content">
-                    <h3 className="product-title">{item.title}</h3>
-                    <div className="brand-name">{item.brand || "Brand"}</div>
-                    
-                    <div className="price-section">
-                      <div className="current-price">
-                        Rp {item.price?.toLocaleString("id-ID") || '0'}
-                      </div>
-                      <div className="original-price">
-                        Rp {originalPrice.toLocaleString("id-ID")}
-                      </div>
-                      <div className="discount-percent">
-                        -{discountPercent}%
-                      </div>
-                    </div>
-
-                    <div className="progress-section">
-                      <div className="progress-info">
-                        <span className="sold-text">
-                          {locale === "id" ? "Terjual" : "Sold"}: {soldPercentage}%
-                        </span>
-                        <span className="stock-text">
-                          {locale === "id" ? "Tersisa" : "Left"}: {stockLeft}
-                        </span>
-                      </div>
-                      <div className="progress-bar">
-                        <div 
-                          className="progress-fill" 
-                          style={{width: `${soldPercentage}%`}}
-                        ></div>
-                      </div>
-                    </div>
-
-                    <button className="action-button">
-                      {locale === "id" ? "Beli Sekarang" : "Buy Now"}
-                    </button>
-                  </div>
-                </Link>
-              );
-            })}
+        {/* Countdown Timer */}
+        <div className="flex items-center gap-3 bg-black/25 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 self-start md:self-auto">
+          <div className="flex items-center gap-1.5 text-xs text-rose-200 font-medium">
+            <Clock size={15} />
+            <span>{locale === "id" ? "Berakhir:" : "Ends in:"}</span>
+          </div>
+          <div className="flex items-center gap-1 font-mono text-xs sm:text-sm font-extrabold">
+            <span className="bg-slate-900/90 text-amber-300 px-2 py-1 rounded-lg shadow-inner">
+              {timeLeft.hours}
+            </span>
+            <span className="text-amber-300 font-black">:</span>
+            <span className="bg-slate-900/90 text-amber-300 px-2 py-1 rounded-lg shadow-inner">
+              {timeLeft.minutes}
+            </span>
+            <span className="text-amber-300 font-black">:</span>
+            <span className="bg-slate-900/90 text-amber-300 px-2 py-1 rounded-lg shadow-inner animate-pulse">
+              {timeLeft.seconds}
+            </span>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Horizontal Cards Scroll */}
+      <div className="flex items-stretch gap-4 overflow-x-auto pb-2 scrollbar-none scroll-smooth">
+        {items.map((item, index) => {
+          const originalPrice = (item.price || 0) * 1.35;
+          const discountPercent = calculateDiscount(item.price, originalPrice);
+          const soldPercentage = Math.min(60 + (index * 6), 94);
+          const stockLeft = Math.max(16 - (index * 2), 3);
+          
+          return (
+            <Link 
+              key={item.id} 
+              to={`/products/${item.id}`}
+              className="group shrink-0 w-44 sm:w-52 bg-white rounded-2xl p-3 text-slate-800 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                {/* Product Image */}
+                <div className="relative aspect-square bg-slate-50 rounded-xl overflow-hidden p-2 flex items-center justify-center mb-2.5">
+                  <span className="absolute top-2 left-2 z-10 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full shadow-xs">
+                    -{discountPercent}%
+                  </span>
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    onError={handleImageError}
+                    loading="lazy"
+                    className="w-full h-full object-contain group-hover:scale-108 transition-transform duration-300"
+                  />
+                </div>
+
+                {/* Brand & Title */}
+                <span className="text-[10px] uppercase font-bold tracking-wider text-rose-600">
+                  {item.brand || "Gadget"}
+                </span>
+                <h3 className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-1 group-hover:text-rose-600 transition-colors">
+                  {item.title}
+                </h3>
+
+                {/* Prices */}
+                <div className="mt-1">
+                  <div className="text-sm sm:text-base font-extrabold text-rose-600">
+                    Rp {item.price?.toLocaleString("id-ID") || '0'}
+                  </div>
+                  <div className="text-[11px] text-slate-400 line-through">
+                    Rp {Math.round(originalPrice).toLocaleString("id-ID")}
+                  </div>
+                </div>
+              </div>
+
+              {/* Stock Progress Bar */}
+              <div className="mt-3">
+                <div className="flex justify-between text-[10px] font-semibold text-slate-500 mb-1">
+                  <span>Terjual {soldPercentage}%</span>
+                  <span className="text-rose-600 font-bold">Sisa {stockLeft}</span>
+                </div>
+                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-400 to-rose-600 rounded-full transition-all duration-500"
+                    style={{ width: `${soldPercentage}%` }}
+                  ></div>
+                </div>
+
+                <div className="mt-3 w-full py-1.5 rounded-xl bg-rose-50 group-hover:bg-rose-600 group-hover:text-white text-rose-600 text-xs font-bold text-center transition-colors">
+                  {locale === "id" ? "Ambil Promo" : "Claim Deal"}
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }

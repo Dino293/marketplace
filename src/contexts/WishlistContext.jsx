@@ -1,6 +1,6 @@
 // src/contexts/WishlistContext.jsx
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getWishlistProducts, addToWishlist, removeFromWishlist } from '../utils/api';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { getWishlistProducts, toggleWishlistApi } from '../utils/api';
 import { useToast } from './ToastContext';
 import { useLocale } from './LocaleContext';
 
@@ -8,11 +8,11 @@ const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
   const [wishlistItems, setWishlistItems] = useState([]);
-  const [wishlistUpdate, setWishlistUpdate] = useState(0);
+  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
   const { locale } = useLocale();
 
-  const fetchWishlist = async () => {
+  const fetchWishlist = useCallback(async () => {
     try {
       const res = await getWishlistProducts();
       if (!res.error && Array.isArray(res.data)) {
@@ -21,50 +21,49 @@ export function WishlistProvider({ children }) {
     } catch (error) {
       console.error('Error fetching wishlist:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchWishlist();
-  }, [wishlistUpdate]);
+  }, [fetchWishlist]);
 
   const toggleWishlist = async (productId) => {
     try {
-      const isInWishlist = wishlistItems.some(item => item.id === productId);
+      setLoading(true);
+      const res = await toggleWishlistApi(productId);
+      const nowInWishlist = res.inWishlist;
       
-      if (isInWishlist) {
-        await removeFromWishlist(productId);
-        showToast(
-          locale === "id" ? "Produk dihapus dari wishlist" : "Product removed from wishlist", 
-          "success"
-        );
-      } else {
-        await addToWishlist(productId);
-        showToast(
-          locale === "id" ? "Produk ditambahkan ke wishlist" : "Product added to wishlist", 
-          "success"
-        );
-      }
+      showToast(
+        nowInWishlist
+          ? (locale === 'id' ? 'Ditambahkan ke wishlist' : 'Added to wishlist')
+          : (locale === 'id' ? 'Dihapus dari wishlist' : 'Removed from wishlist'),
+        'success'
+      );
       
-      setWishlistUpdate(prev => prev + 1);
-      return !isInWishlist;
+      await fetchWishlist();
+      return nowInWishlist;
     } catch (error) {
       showToast(
-        locale === "id" ? "Gagal mengupdate wishlist" : "Failed to update wishlist", 
-        "error"
+        locale === 'id' ? 'Gagal mengupdate wishlist' : 'Failed to update wishlist',
+        'error'
       );
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const isInWishlist = (productId) => {
-    return wishlistItems.some(item => item.id === productId);
+    return wishlistItems.some(item => String(item.id) === String(productId));
   };
 
   const value = {
     wishlistItems,
+    wishlistCount: wishlistItems.length,
     toggleWishlist,
     isInWishlist,
-    refreshWishlist: () => setWishlistUpdate(prev => prev + 1)
+    refreshWishlist: fetchWishlist,
+    loading
   };
 
   return (

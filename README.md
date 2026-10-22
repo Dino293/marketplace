@@ -1,70 +1,85 @@
-# Getting Started with Create React App
+# PT. TRIO Distribusi - MarketPlace Gadget & Elektronik Resmi
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Platform e-commerce marketplace modern berbasis **React 18**, **Tailwind CSS v4**, dan **Vite** untuk distribusi smartphone, tablet, perangkat audio, serta aksesori original bergaransi resmi di Indonesia.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🌟 Fitur Utama Aplikasi
 
-### `npm start`
+### 1. Katalog & Eksplorasi Produk
+- **Katalog Terlengkap (`/catalog`)**: Pencarian instan, filter kategori multi-tier, filter brand manufaktur resmi, dan filter stok ready.
+- **Pengurutan Pintar (Smart Sorting)**: Urutkan produk berdasarkan *Terbaru*, *Harga Terendah*, *Harga Tertinggi*, atau *Rating Tertinggi*.
+- **Detail Produk Komprehensif (`/products/:id`)**:
+  - Galeri gambar interaktif.
+  - Pemilihan varian (warna & kapasitas storage) dengan kalkulasi harga dinamis.
+  - Indikator urgensi stok (*"Sisa X unit! Stok Terbatas"*).
+  - Tab deskripsi, spesifikasi teknis lengkap, dan sistem ulasan pembeli terverifikasi.
+  - Formulir ulasan interaktif dengan pilihan rating bintang (1-5).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 2. Transaksi & Keranjang Belanja (`/cart`)
+- **Keranjang Belanja Persistent**: Jumlah kuantitas barang tersimpan permanen di penyimpanan lokal (`localStorage`).
+- **Sistem Kupon Promo & Voucher**:
+  - `TRIOBARU` — Diskon 10% (s.d Rp 500.000) untuk pengguna baru.
+  - `ONGKIRGRATIS` — Potongan ongkos kirim Rp 20.000.
+  - `HEMAT50` — Potongan langsung Rp 50.000.
+- **Multi-Kurir Logistik**: Simulasi pilihan kurir (SiCepat Best, JNE Reguler, GoSend Instant 3 jam).
+- **Multi-Metode Pembayaran**: QRIS Dinamis terintegrasi, Virtual Account BCA, Mandiri VA.
+- **Asuransi Pengiriman**: Proteksi gratis dari PT. TRIO Distribusi.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 3. Dashboard Profil & Riwayat Pesanan (`/profile`)
+- **Manajemen Akun**: Ubah nama, email, nomor kontak WhatsApp, dan informasi pribadi.
+- **Buku Alamat Pengiriman**: Simpan dan kelola banyak alamat (Rumah, Kantor) serta set alamat utama.
+- **Pelacakan Status Pesanan Real-time**: Lacak milestone pesanan (*Pesanan Dibuat -> Dikemas -> Dalam Perjalanan -> Terkirim*).
+- **Cetak Bukti Transaksi (Invoice)**: Modal invoice lengkap siap cetak (`Printable PDF`) dengan barcode, NPWP perusahaan, dan rincian pajak/diskon.
 
-### `npm test`
+### 4. Wishlist & Favorit (`/wishlist`)
+- Simpan produk incaran dalam satu klik.
+- Fitur pindahkan seluruh barang wishlist ke keranjang belanja sekaligus (*"Beli Semua"*).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 5. Multi-Bahasa & Aksesibilitas
+- Toggle instan Bahasa Indonesia (`ID`) dan Bahasa Inggris (`EN`).
+- *Bottom Navigation Bar* responsif untuk pengalaman pengguna mobile.
+- Error boundary untuk penanganan galat aman.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🛠️ Tech Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Framework**: [React 18](https://react.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) dengan `@tailwindcss/postcss`
+- **Routing**: [React Router DOM v7](https://reactrouter.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **State & Storage**: React Context API (`Auth`, `Cart`, `Wishlist`, `Search`, `Locale`, `Toast`) + Isolated Persistent Storage
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## 🚀 Panduan Menjalankan Proyek
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 1. Instalasi Dependensi
+```bash
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Menjalankan Server Pengembangan (Dev)
+```bash
+npm run dev
+```
+Buka browser di `http://localhost:5173`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 3. Membangun Bundle Produksi (Build)
+```bash
+npm run build
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🔐 Akun Demo Siap Pakai
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Email**: `demo@example.com` atau `budi.santoso@triodistribusi.co.id`
+- **Password**: `password123`
+- **Role**: `VIP Member`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+© 2025 PT. TRIO Distribusi Indonesia. All rights reserved.

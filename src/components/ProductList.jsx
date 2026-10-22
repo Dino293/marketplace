@@ -1,21 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
-import ProductItem from "./ProductItem";
+import ProductCard from "./ProductCard";
 
-export default function ProductList({ products, onDelete, onAddToCart, onRemoveFromCart }) {
-  if (!products.length) {
-    return <p className="text-gray-500">Tidak ada produk</p>;
+export default function ProductList({ products }) {
+  if (!products || !products.length) {
+    return <p className="text-slate-400 text-xs">Tidak ada produk</p>;
   }
 
   return (
-    <div className="product-list">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {products.map(product => (
-        <ProductItem
+        <ProductCard
           key={product.id}
           product={product}
-          onDelete={onDelete}
-          onAddToCart={onAddToCart}
-          onRemoveFromCart={onRemoveFromCart}
         />
       ))}
     </div>
@@ -24,7 +21,4 @@ export default function ProductList({ products, onDelete, onAddToCart, onRemoveF
 
 ProductList.propTypes = {
   products: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onDelete: PropTypes.func,
-  onAddToCart: PropTypes.func,
-  onRemoveFromCart: PropTypes.func,
 };

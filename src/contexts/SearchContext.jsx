@@ -5,6 +5,10 @@ const SearchContext = createContext();
 export function SearchProvider({ children }) {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [sortBy, setSortBy] = useState('latest');
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(0);
 
   const updateSearch = (keyword) => {
     setSearchKeyword(keyword);
@@ -14,16 +18,40 @@ export function SearchProvider({ children }) {
     setSelectedCategory(category);
   };
 
+  const selectBrand = (brand) => {
+    setSelectedBrand(brand);
+  };
+
+  const updateSort = (sort) => {
+    setSortBy(sort);
+  };
+
+  const setPriceRange = (min, max) => {
+    setMinPrice(min);
+    setMaxPrice(max);
+  };
+
   const clearFilters = () => {
     setSearchKeyword('');
     setSelectedCategory(null);
+    setSelectedBrand(null);
+    setSortBy('latest');
+    setMinPrice(0);
+    setMaxPrice(0);
   };
 
   const value = {
     searchKeyword,
     selectedCategory,
+    selectedBrand,
+    sortBy,
+    minPrice,
+    maxPrice,
     updateSearch,
     selectCategory,
+    selectBrand,
+    updateSort,
+    setPriceRange,
     clearFilters
   };
 
@@ -42,5 +70,4 @@ export function useSearch() {
   return context;
 }
 
-// Tambahkan export default
 export default SearchContext;
