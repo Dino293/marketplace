@@ -15,13 +15,13 @@ export default function CompareFloatingBar() {
   }
 
   return (
-    <aside aria-label="Bilah perbandingan produk" className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[92%] sm:w-auto bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-md text-white rounded-2xl sm:rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-2xl border border-slate-700/80 animate-in slide-in-from-bottom-3 duration-200">
-      <div className="flex flex-col sm:flex-row items-center gap-3">
+    <aside aria-label="Bilah perbandingan produk" className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-lg w-[calc(100%-1.5rem)] sm:w-auto bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-md text-white rounded-2xl sm:rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-2xl border border-slate-700/80 animate-in slide-in-from-bottom-3 duration-200">
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
         {/* Info & Thumbnails */}
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto justify-between sm:justify-start">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0">
-              <Scale size={16} />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0">
+              <Scale size={15} />
             </div>
             <div>
               <span className="text-xs font-black block leading-none">
@@ -38,7 +38,7 @@ export default function CompareFloatingBar() {
             {compareItems.map(item => (
               <div 
                 key={item.id} 
-                className="relative group w-8 h-8 rounded-full bg-white p-1 border-2 border-slate-800 shadow-xs shrink-0 overflow-hidden"
+                className="relative group w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white p-0.5 sm:p-1 border-2 border-slate-800 shadow-xs shrink-0 overflow-hidden"
                 title={item.title}
               >
                 <img 
@@ -65,7 +65,7 @@ export default function CompareFloatingBar() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-slate-800 pt-2 sm:pt-0">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-slate-800/80 pt-2 sm:pt-0">
           <button
             type="button"
             onClick={clearCompare}
@@ -76,10 +76,10 @@ export default function CompareFloatingBar() {
 
           <Link
             to="/compare"
-            className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
+            className="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
           >
-            <span>{locale === "id" ? "Bandingkan Sekarang" : "Compare Now"}</span>
-            <ArrowRight size={14} />
+            <span>{locale === "id" ? `Bandingkan (${compareCount})` : `Compare (${compareCount})`}</span>
+            <ArrowRight size={13} />
           </Link>
         </div>
       </div>

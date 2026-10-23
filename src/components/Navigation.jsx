@@ -121,12 +121,12 @@ export default function Navigation() {
         {/* Top Mini Bar */}
         <div className="bg-slate-900 dark:bg-slate-950 text-slate-300 text-[11px] py-1.5 px-3 sm:px-6 border-b border-slate-800">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 relative">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="flex h-2 w-2 relative shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="font-medium text-slate-200">
+              <span className="font-medium text-slate-200 truncate max-w-[180px] xs:max-w-xs sm:max-w-none">
                 {locale === "id" 
                   ? "Distributor Resmi Gadget & Aksesori Terpercaya Indonesia" 
                   : "Official Distributor of Premium Gadgets in Indonesia"}

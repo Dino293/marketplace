@@ -280,14 +280,14 @@ export default function CartPage() {
               </span>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-xs divide-y divide-slate-100">
+            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200/90 shadow-xs divide-y divide-slate-100">
               {cartItems.map((item) => {
                 const isSelected = selectedItemIds.includes(item.cartItemId);
                 const qty = item.quantity || 1;
                 return (
-                  <div key={item.cartItemId} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div key={item.cartItemId} className="py-3.5 sm:py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                     {/* Checkbox + Image & Title */}
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                    <div className="flex items-center gap-2.5 sm:gap-4 flex-1 w-full sm:w-auto">
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -295,7 +295,7 @@ export default function CartPage() {
                         className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer accent-blue-600 shrink-0"
                         title={locale === "id" ? "Centang untuk membeli barang ini" : "Select to purchase"}
                       />
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-50 border border-slate-200/80 p-2 shrink-0 flex items-center justify-center">
+                      <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200/80 p-1.5 sm:p-2 shrink-0 flex items-center justify-center">
                         <img 
                           src={item.image || "/terlaris/1.jpg"} 
                           alt={item.title} 
@@ -304,61 +304,67 @@ export default function CartPage() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md inline-block mb-1">
+                        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md inline-block mb-1">
                           {item.brand || "TRIO"}
                         </span>
-                        <h3 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                        <h3 className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-2">
                           {item.title}
                         </h3>
                         {item.selectedVariant && (
-                          <p className="text-[11px] text-slate-500 font-medium">
-                            Varian: {item.selectedVariant.color} • {item.selectedVariant.storage}
+                          <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">
+                            {item.selectedVariant.color} • {item.selectedVariant.storage}
                           </p>
                         )}
-                        <p className="text-xs sm:text-sm font-extrabold text-blue-600 mt-1">
+                        <p className="text-xs sm:text-sm font-extrabold text-blue-600 mt-0.5">
                           Rp {item.price?.toLocaleString("id-ID")}
                         </p>
                       </div>
                     </div>
 
                     {/* Quantity & Delete */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
-                      <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 p-1">
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
+                      <span className="text-xs font-bold text-slate-700 sm:hidden">
+                        Total: <span className="text-blue-600 font-extrabold">Rp {(item.price * qty).toLocaleString("id-ID")}</span>
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 p-1">
+                          <button
+                            type="button"
+                            onClick={() => handleDecreaseQuantity(item)}
+                            disabled={qty <= 1}
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                              qty <= 1
+                                ? "bg-slate-100 text-slate-300 cursor-not-allowed"
+                                : "bg-white text-slate-700 hover:bg-slate-200 shadow-2xs cursor-pointer active:scale-95"
+                            }`}
+                            title={qty <= 1 ? "Batas minimal 1 barang (tetap ngestack, tekan ikon sampah merah untuk hapus)" : "Kurang"}
+                          >
+                            <Minus size={13} />
+                          </button>
+                          <span className="w-8 text-center text-xs font-bold text-slate-800">
+                            {qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.cartItemId, qty + 1)}
+                            className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-slate-700 hover:bg-slate-200 shadow-2xs cursor-pointer active:scale-95 transition-all"
+                            title="Tambah"
+                          >
+                            <Plus size={13} />
+                          </button>
+                        </div>
+
+                        {/* Tombol Logo Sampah / Hapus */}
                         <button
                           type="button"
-                          onClick={() => handleDecreaseQuantity(item)}
-                          disabled={qty <= 1}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                            qty <= 1
-                              ? "bg-slate-100 text-slate-300 cursor-not-allowed"
-                              : "bg-white text-slate-700 hover:bg-slate-200 shadow-2xs cursor-pointer active:scale-95"
-                          }`}
-                          title={qty <= 1 ? "Batas minimal 1 barang (tetap ngestack, tekan ikon sampah merah untuk hapus)" : "Kurang"}
+                          onClick={() => removeFromCart(item.cartItemId)}
+                          className="p-2 rounded-xl text-rose-500 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-200 transition-all cursor-pointer"
+                          title={locale === "id" ? "Hapus barang dari keranjang" : "Remove item from cart"}
                         >
-                          <Minus size={13} />
-                        </button>
-                        <span className="w-8 text-center text-xs font-bold text-slate-800">
-                          {qty}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.cartItemId, qty + 1)}
-                          className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-slate-700 hover:bg-slate-200 shadow-2xs cursor-pointer active:scale-95 transition-all"
-                          title="Tambah"
-                        >
-                          <Plus size={13} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
-
-                      {/* Tombol Logo Sampah / Hapus */}
-                      <button
-                        type="button"
-                        onClick={() => removeFromCart(item.cartItemId)}
-                        className="p-2 rounded-xl text-rose-500 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-200 transition-all cursor-pointer"
-                        title={locale === "id" ? "Hapus barang dari keranjang" : "Remove item from cart"}
-                      >
-                        <Trash2 size={16} />
-                      </button>
                     </div>
                   </div>
                 );
@@ -548,7 +554,7 @@ export default function CartPage() {
                     <Truck size={14} className="text-blue-600" />
                     Pilih Layanan Kurir
                   </span>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       { id: "sicepat", name: "SiCepat Best", price: 15000, time: "1-2 Hari" },
                       { id: "jne", name: "JNE Reguler", price: 22000, time: "2-3 Hari" },
@@ -558,15 +564,17 @@ export default function CartPage() {
                         key={c.id}
                         type="button"
                         onClick={() => setSelectedCourier(c.id)}
-                        className={`p-3 rounded-2xl border text-left text-xs transition-all cursor-pointer ${
+                        className={`p-3 rounded-2xl border text-left text-xs transition-all cursor-pointer flex sm:flex-col justify-between sm:justify-start items-center sm:items-start ${
                           selectedCourier === c.id
                             ? "border-blue-600 bg-blue-50/60 shadow-xs"
                             : "border-slate-200 bg-white"
                         }`}
                       >
-                        <strong className="block text-slate-900">{c.name}</strong>
-                        <span className="text-[10px] text-slate-400">{c.time}</span>
-                        <span className="block font-bold text-blue-600 mt-1">
+                        <div>
+                          <strong className="block text-slate-900">{c.name}</strong>
+                          <span className="text-[10px] text-slate-400">{c.time}</span>
+                        </div>
+                        <span className="font-bold text-blue-600 sm:mt-1">
                           Rp {c.price.toLocaleString("id-ID")}
                         </span>
                       </button>
@@ -580,7 +588,7 @@ export default function CartPage() {
                     <CreditCard size={14} className="text-blue-600" />
                     Metode Pembayaran
                   </span>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       { id: "qris", name: "QRIS Dinamis", icon: <QrCode size={18} /> },
                       { id: "bca", name: "BCA Virtual Account", icon: <CreditCard size={18} /> },
@@ -590,14 +598,14 @@ export default function CartPage() {
                         key={p.id}
                         type="button"
                         onClick={() => setSelectedPayment(p.id)}
-                        className={`p-3 rounded-2xl border text-center text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-all ${
+                        className={`p-3 rounded-2xl border text-xs flex sm:flex-col items-center justify-start sm:justify-center gap-2.5 sm:gap-1.5 cursor-pointer transition-all ${
                           selectedPayment === p.id
                             ? "border-blue-600 bg-blue-50 text-blue-700 font-bold"
                             : "border-slate-200 bg-white text-slate-700"
                         }`}
                       >
-                        {p.icon}
-                        <span className="text-[11px]">{p.name}</span>
+                        <div className="text-blue-600 shrink-0">{p.icon}</div>
+                        <span className="text-xs sm:text-[11px]">{p.name}</span>
                       </button>
                     ))}
                   </div>

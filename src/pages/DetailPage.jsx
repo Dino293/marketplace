@@ -340,10 +340,10 @@ export default function DetailPage() {
               <span className="text-xs text-slate-400">Total Stok: {product.stock} unit</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 min-w-[160px] py-3.5 px-6 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 border border-blue-200 transition-colors cursor-pointer"
+                className="flex-1 min-w-[130px] sm:min-w-[160px] py-3 sm:py-3.5 px-4 sm:px-6 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 border border-blue-200 transition-colors cursor-pointer"
               >
                 <ShoppingBag size={18} />
                 <span>+ Keranjang</span>
@@ -351,7 +351,7 @@ export default function DetailPage() {
 
               <button
                 onClick={handleBuyNow}
-                className="flex-1 min-w-[160px] py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-blue-500/25 transition-all cursor-pointer"
+                className="flex-1 min-w-[130px] sm:min-w-[160px] py-3 sm:py-3.5 px-4 sm:px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-blue-500/25 transition-all cursor-pointer"
               >
                 Beli Sekarang
               </button>

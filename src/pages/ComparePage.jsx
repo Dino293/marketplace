@@ -152,91 +152,100 @@ export default function ComparePage() {
         </div>
       ) : (
         /* Comparison Table Matrix */
-        <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left min-w-[700px]">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-850">
-                  <th className="p-4 sm:p-5 w-48 text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
-                    Spesifikasi
-                  </th>
-                  {compareItems.map(item => (
-                    <th key={item.id} className="p-4 sm:p-5 min-w-[220px] max-w-[260px] align-top">
-                      <div className="flex flex-col h-full justify-between gap-3">
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() => removeFromCompare(item.id)}
-                            className="absolute -top-1 -right-1 p-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                            title="Hapus dari perbandingan"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+        <div className="space-y-2">
+          {/* Mobile Swipe Hint */}
+          <div className="sm:hidden flex items-center justify-between gap-2 p-2.5 px-3 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-semibold">
+            <span>👉 Geser ke kanan untuk melihat spesifikasi produk</span>
+            <span className="text-[10px] bg-blue-600 text-white font-bold px-2 py-0.5 rounded-full shrink-0">
+              {compareItems.length} Produk
+            </span>
+          </div>
 
-                          <div className="w-24 h-24 mx-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-2 flex items-center justify-center">
-                            <img
-                              src={item.image}
-                              alt={item.title}
-                              className="w-full h-full object-contain"
-                              onError={(e) => { e.target.src = "/terlaris/1.jpg"; }}
-                            />
+          <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden">
+            <div className="overflow-x-auto scrollbar-none">
+              <table className="w-full border-collapse text-left min-w-[620px] sm:min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-850">
+                    <th className="p-4 sm:p-5 w-40 sm:w-48 text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0 sticky left-0 z-20 bg-slate-100 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
+                      Spesifikasi
+                    </th>
+                    {compareItems.map(item => (
+                      <th key={item.id} className="p-4 sm:p-5 min-w-[200px] sm:min-w-[220px] max-w-[260px] align-top">
+                        <div className="flex flex-col h-full justify-between gap-3">
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => removeFromCompare(item.id)}
+                              className="absolute -top-1 -right-1 p-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                              title="Hapus dari perbandingan"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 p-2 flex items-center justify-center">
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-full h-full object-contain"
+                                onError={(e) => { e.target.src = "/terlaris/1.jpg"; }}
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded-md uppercase">
+                              {item.brand}
+                            </span>
+                            <h3 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm mt-1 line-clamp-2">
+                              {item.title}
+                            </h3>
+                          </div>
+
+                          <div className="flex flex-col gap-2 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => addToCart(item.id)}
+                              className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              <ShoppingBag size={13} />
+                              <span>Tambah Keranjang</span>
+                            </button>
+                            <Link
+                              to={`/products/${item.id}`}
+                              className="w-full py-1.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-center font-bold text-[11px] transition-colors"
+                            >
+                              Lihat Detail
+                            </Link>
                           </div>
                         </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
 
-                        <div>
-                          <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded-md uppercase">
-                            {item.brand}
-                          </span>
-                          <h3 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm mt-1 line-clamp-2">
-                            {item.title}
-                          </h3>
-                        </div>
-
-                        <div className="flex flex-col gap-2 pt-2">
-                          <button
-                            type="button"
-                            onClick={() => addToCart(item.id)}
-                            className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <ShoppingBag size={13} />
-                            <span>Tambah Keranjang</span>
-                          </button>
-                          <Link
-                            to={`/products/${item.id}`}
-                            className="w-full py-1.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-center font-bold text-[11px] transition-colors"
-                          >
-                            Lihat Detail
-                          </Link>
-                        </div>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
-                {/* Row: Harga */}
-                <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40">
-                    Harga Jual Resmi
-                  </td>
-                  {compareItems.map(item => (
-                    <td key={item.id} className="p-4 sm:p-5">
-                      <span className="text-sm sm:text-base font-black text-blue-600 dark:text-blue-400 block">
-                        Rp {item.price?.toLocaleString("id-ID")}
-                      </span>
-                      {item.originalPrice && item.originalPrice > item.price && (
-                        <span className="text-[11px] text-slate-400 line-through">
-                          Rp {item.originalPrice.toLocaleString("id-ID")}
-                        </span>
-                      )}
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                  {/* Row: Harga */}
+                  <tr>
+                    <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
+                      Harga Jual Resmi
                     </td>
-                  ))}
-                </tr>
+                    {compareItems.map(item => (
+                      <td key={item.id} className="p-4 sm:p-5">
+                        <span className="text-sm sm:text-base font-black text-blue-600 dark:text-blue-400 block">
+                          Rp {item.price?.toLocaleString("id-ID")}
+                        </span>
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <span className="text-[11px] text-slate-400 line-through">
+                            Rp {item.originalPrice.toLocaleString("id-ID")}
+                          </span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
 
                 {/* Row: Rating */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
                     Rating & Ulasan
                   </td>
                   {compareItems.map(item => (
@@ -254,7 +263,7 @@ export default function ComparePage() {
 
                 {/* Row: Kategori */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
                     Kategori Produk
                   </td>
                   {compareItems.map(item => (
@@ -266,7 +275,7 @@ export default function ComparePage() {
 
                 {/* Row: Layar */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40 flex items-center gap-1.5">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)] flex items-center gap-1.5">
                     <Monitor size={15} className="text-blue-500" />
                     <span>Layar & Panel</span>
                   </td>
@@ -279,7 +288,7 @@ export default function ComparePage() {
 
                 {/* Row: Chipset */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40 flex items-center gap-1.5">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)] flex items-center gap-1.5">
                     <Cpu size={15} className="text-purple-500" />
                     <span>Chipset / Prosesor</span>
                   </td>
@@ -292,7 +301,7 @@ export default function ComparePage() {
 
                 {/* Row: RAM & Storage */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40 flex items-center gap-1.5">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)] flex items-center gap-1.5">
                     <HardDrive size={15} className="text-emerald-500" />
                     <span>RAM & Penyimpanan</span>
                   </td>
@@ -305,7 +314,7 @@ export default function ComparePage() {
 
                 {/* Row: Baterai */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40 flex items-center gap-1.5">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)] flex items-center gap-1.5">
                     <BatteryCharging size={15} className="text-amber-500" />
                     <span>Baterai & Charging</span>
                   </td>
@@ -318,7 +327,7 @@ export default function ComparePage() {
 
                 {/* Row: Garansi */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40 flex items-center gap-1.5">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)] flex items-center gap-1.5">
                     <ShieldCheck size={15} className="text-emerald-600" />
                     <span>Status Garansi</span>
                   </td>
@@ -331,7 +340,7 @@ export default function ComparePage() {
 
                 {/* Row: Ketersediaan Stok */}
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-850/40">
+                  <td className="p-4 sm:p-5 font-bold text-slate-900 dark:text-slate-200 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
                     Ketersediaan Stok
                   </td>
                   {compareItems.map(item => (
@@ -346,7 +355,8 @@ export default function ComparePage() {
             </table>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       <FooterSection />
     </div>

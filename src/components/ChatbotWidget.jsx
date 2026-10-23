@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import dataset from "../data/chatbotDataset.json";
 import { useLocale } from "../contexts/LocaleContext";
+import { useCompare } from "../contexts/CompareContext";
 import { 
   Bot, 
   X, 
@@ -23,6 +24,7 @@ import {
 
 export default function ChatbotWidget() {
   const { locale } = useLocale();
+  const { compareCount } = useCompare();
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnread, setHasUnread] = useState(true);
   const [activeSheet, setActiveSheet] = useState("all");
@@ -194,14 +196,14 @@ export default function ChatbotWidget() {
   return (
     <>
       {/* Floating Launcher Button */}
-      <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40">
+      <div className={`fixed ${compareCount > 0 ? "bottom-36 md:bottom-6" : "bottom-20 md:bottom-6"} right-3 sm:right-6 z-40 transition-all duration-300`}>
         <button
           onClick={handleOpenChat}
-          className="group relative p-4 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xl hover:shadow-2xl hover:scale-108 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer border-2 border-white/40"
+          className="group relative p-3.5 sm:p-4 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xl hover:shadow-2xl hover:scale-108 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer border-2 border-white/40"
           aria-label="Buka Chatbot Asisten AI"
           title="Tanya AI PT. TRIO Distribusi"
         >
-          <Bot size={26} className="group-hover:rotate-12 transition-transform" />
+          <Bot size={24} className="group-hover:rotate-12 transition-transform" />
           
           {/* Status Indicator */}
           <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
@@ -221,26 +223,36 @@ export default function ChatbotWidget() {
 
       {/* Chatbot Window / Drawer */}
       {isOpen && (
-        <div className="fixed inset-x-3 bottom-20 sm:bottom-6 sm:inset-x-auto sm:right-6 z-50 max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-200 max-h-[82vh] sm:h-[620px]">
-          
-          {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white flex items-center justify-between shrink-0 shadow-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20">
-                <Bot size={22} />
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="font-extrabold text-sm tracking-tight">TRIO Assistant AI</h3>
-                  <span className="text-[10px] bg-emerald-400/30 text-emerald-200 px-2 py-0.5 rounded-full font-bold">
-                    Online
-                  </span>
-                </div>
-                <p className="text-[11px] text-blue-100">Bantuan Resmi & Dataset Terstruktur</p>
-              </div>
-            </div>
+        <>
+          {/* Mobile Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 sm:hidden animate-in fade-in duration-200"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
 
-            <div className="flex items-center gap-1">
+          <div className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:right-6 sm:bottom-6 z-50 sm:max-w-md w-full bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 h-[88vh] sm:h-[620px] max-h-[88vh] sm:max-h-[620px]">
+            
+            {/* Header */}
+            <div className="p-3.5 sm:p-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white flex flex-col shrink-0 shadow-md">
+              <div className="w-10 h-1 rounded-full bg-white/40 mx-auto mb-2 sm:hidden" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20">
+                    <Bot size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-extrabold text-xs sm:text-sm tracking-tight">TRIO Assistant AI</h3>
+                      <span className="text-[9px] sm:text-[10px] bg-emerald-400/30 text-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                        Online
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] text-blue-100">Bantuan Resmi & Dataset Terstruktur</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
               {/* Download Dataset Button */}
               <button
                 type="button"
@@ -261,6 +273,7 @@ export default function ChatbotWidget() {
               </button>
             </div>
           </div>
+        </div>
 
           {/* Sheet / Category Filter Tabs */}
           <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-800 overflow-x-auto flex gap-1.5 scrollbar-none shrink-0 text-xs">
@@ -458,7 +471,8 @@ export default function ChatbotWidget() {
             </button>
           </div>
         </div>
-      )}
+      </>
+    )}
     </>
   );
 }
