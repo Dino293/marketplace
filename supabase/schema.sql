@@ -67,6 +67,19 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 );
 
 -- ==============================================================================
+-- GRANT PERMISSIONS TO POSTGREST ROLES (anon, authenticated, service_role)
+-- Memastikan API PostgREST Supabase memiliki izin SELECT, INSERT, UPDATE
+-- ==============================================================================
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+
+-- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Membuka akses baca dan tulis agar aplikasi front-end web dapat beroperasi lancar
 -- ==============================================================================
@@ -75,7 +88,18 @@ ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
--- Allow Public / Anon Select
+-- Drop existing policies if re-running
+DROP POLICY IF EXISTS "Allow public read products" ON public.products;
+DROP POLICY IF EXISTS "Allow public insert products" ON public.products;
+DROP POLICY IF EXISTS "Allow public update products" ON public.products;
+DROP POLICY IF EXISTS "Allow public read orders" ON public.orders;
+DROP POLICY IF EXISTS "Allow public insert orders" ON public.orders;
+DROP POLICY IF EXISTS "Allow public read profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Allow public insert profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Allow public read notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Allow public insert notifications" ON public.notifications;
+
+-- Create Policies
 CREATE POLICY "Allow public read products" ON public.products FOR SELECT USING (true);
 CREATE POLICY "Allow public insert products" ON public.products FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update products" ON public.products FOR UPDATE USING (true);
