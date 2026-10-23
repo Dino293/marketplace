@@ -3,12 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 
   <title>PT. TRIO Distribusi - MarketPlace Gadget & Elektronik Resmi</title>
   <meta name="description" content="Distributor dan Marketplace Resmi Gadget, Smartphone Flagship, Tablet, Audio, dan Aksesori Original Bergaransi 1 Tahun PT. TRIO Distribusi Indonesia." />
   <meta name="keywords" content="marketplace gadget, distributor gadget, smartphone garansi resmi, samsung, apple, xiaomi, trio distribusi" />
   <meta name="theme-color" content="#2563eb" />
+
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TRIO Market" />
+  <link rel="apple-touch-icon" href="/vite.svg" />
 
   <!-- OpenGraph Meta Tags -->
   <meta property="og:title" content="PT. TRIO Distribusi - MarketPlace Gadget & Elektronik Resmi" />
@@ -24,5 +31,21 @@
 <body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
   <div id="root"></div>
   <script type="module" src="/src/index.jsx"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(
+          (reg) => {
+            console.log('PWA ServiceWorker registered with scope:', reg.scope);
+          },
+          (err) => {
+            console.log('PWA ServiceWorker registration failed:', err);
+          }
+        );
+      });
+    }
+  </script>
 </body>
 </html>

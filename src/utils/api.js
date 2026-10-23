@@ -260,16 +260,21 @@ const initialReviews = [
   }
 ];
 
-const defaultUser = {
-  id: 'usr-1',
-  name: 'Budi Santoso',
-  email: 'budi.santoso@triodistribusi.co.id',
+export const DEMO_BUYER = {
+  id: 'usr-buyer-demo',
+  name: 'Budi Santoso (Pembeli Demo)',
+  email: 'pembeli@trio.com',
+  password: 'password123',
   phone: '0812-3456-7890',
-  role: 'VIP Member',
+  role: 'buyer',
+  roleLabel: 'Pembeli Terverifikasi',
+  storeName: '',
+  twoFactorEnabled: true,
+  twoFactorSecret: 'TRIO2025BUYERAUTH',
   addresses: [
     {
       id: 'addr-1',
-      label: 'Kantor / Utama',
+      label: 'Kantor / Alamat Pengiriman',
       name: 'Budi Santoso',
       phone: '0812-3456-7890',
       street: 'Gedung TRIO Plaza Lantai 5, Jl. Jend. Sudirman Kav. 21',
@@ -287,6 +292,33 @@ const defaultUser = {
     }
   ]
 };
+
+export const DEMO_SELLER = {
+  id: 'usr-seller-demo',
+  name: 'PT. TRIO Official Store (Penjual Mitra)',
+  email: 'penjual@trio.com',
+  password: 'password123',
+  phone: '0897-1419-924',
+  role: 'seller',
+  roleLabel: 'Official Store & Penjual Mitra',
+  storeName: 'TRIO Official Gadget Store',
+  twoFactorEnabled: true,
+  twoFactorSecret: 'TRIO2025SELLERAUTH',
+  addresses: [
+    {
+      id: 'addr-seller-1',
+      label: 'Gudang Pusat Distribusi',
+      name: 'PT. TRIO Distribusi Fulfillment',
+      phone: '0897-1419-924',
+      street: 'Pusat Logistik Berikat Blok B7, Cakung',
+      city: 'Jakarta Timur, DKI Jakarta 13910',
+      isDefault: true
+    }
+  ]
+};
+
+export const defaultUser = DEMO_BUYER;
+
 
 // Available Promo Vouchers
 export const VOUCHERS = [
@@ -483,16 +515,14 @@ export async function addToCart(productId, variantDetails = null, quantity = 1) 
 export async function updateCartQuantity(cartItemId, newQuantity) {
   await new Promise(r => setTimeout(r, 40));
   let cart = getStorage('trio_cart', []);
-  if (newQuantity <= 0) {
-    cart = cart.filter(item => item.cartItemId !== cartItemId);
-  } else {
-    cart = cart.map(item => {
-      if (item.cartItemId === cartItemId) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-  }
+  // Batas minimal barang adalah 1 (tetap ngestack di 1, tidak boleh terhapus kecuali tombol sampah ditekan)
+  const validQuantity = Math.max(1, parseInt(newQuantity, 10) || 1);
+  cart = cart.map(item => {
+    if (item.cartItemId === cartItemId) {
+      return { ...item, quantity: validQuantity };
+    }
+    return item;
+  });
   setStorage('trio_cart', cart);
   return { error: false, data: cart };
 }
@@ -627,8 +657,14 @@ export async function checkout(orderDetails) {
   };
   orders.unshift(newOrder);
   setStorage('trio_orders', orders);
-  await clearCart();
-  return { error: false, data: newOrder, message: 'Order created successfully' };
+
+  // Hapus hanya barang yang dibeli dari keranjang, sisakan barang yang tidak dicentang
+  let cart = getStorage('trio_cart', []);
+  const purchasedCartItemIds = (orderDetails.items || []).map(i => i.cartItemId || i.id);
+  cart = cart.filter(c => !purchasedCartItemIds.includes(c.cartItemId) && !purchasedCartItemIds.includes(c.productId));
+  setStorage('trio_cart', cart);
+
+  return { error: false, data: newOrder, remainingCart: cart, message: 'Order created successfully' };
 }
 
 // -----------------------------------------------------------------------------
@@ -659,46 +695,129 @@ export async function addProductReview(productId, { rating, comment, userName })
 }
 
 // -----------------------------------------------------------------------------
-// User & Auth API
+// Two-Factor Authentication (2FA) & Google Authenticator Simulation Helper
 // -----------------------------------------------------------------------------
-export async function login({ email, password }) {
+export function generateTotpCode(secretKey = 'TRIOAUTH') {
+  // Generates 6-digit rolling code based on current 30-sec time slice
+  const epoch = Math.floor(Date.now() / 30000);
+  let hash = 0;
+  for (let i = 0; i < secretKey.length; i++) {
+    hash = ((hash << 5) - hash) + secretKey.charCodeAt(i);
+    hash |= 0;
+  }
+  const codeNum = Math.abs((hash ^ epoch) % 900000) + 100000;
+  return String(codeNum);
+}
+
+export function verifyTotpCode(inputCode, secretKey = 'TRIOAUTH') {
+  if (!inputCode) return false;
+  const clean = String(inputCode).trim();
+  const current = generateTotpCode(secretKey);
+  // Universal demo bypass token for easy testing: 123456
+  if (clean === current || clean === '123456') return true;
+
+  // Drift tolerance (previous 30s slice)
+  const prevEpoch = Math.floor((Date.now() - 30000) / 30000);
+  let hash = 0;
+  for (let i = 0; i < secretKey.length; i++) {
+    hash = ((hash << 5) - hash) + secretKey.charCodeAt(i);
+    hash |= 0;
+  }
+  const prev = String(Math.abs((hash ^ prevEpoch) % 900000) + 100000);
+  return clean === prev;
+}
+
+// -----------------------------------------------------------------------------
+// User & Auth API (Buyer vs Seller with 2FA)
+// -----------------------------------------------------------------------------
+export async function login({ email, password, otpCode, bypass2FA = false }) {
   await new Promise(r => setTimeout(r, 120));
-  const users = getStorage('trio_registered_users', [defaultUser]);
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const users = getStorage('trio_registered_users', [DEMO_BUYER, DEMO_SELLER]);
   
+  // Normalize demo aliases
+  let targetEmail = email ? email.trim().toLowerCase() : '';
+  if (targetEmail === 'demo@example.com') targetEmail = 'pembeli@trio.com';
+  if (targetEmail === 'seller@trio.com') targetEmail = 'penjual@trio.com';
+
+  const user = users.find(u => u.email.toLowerCase() === targetEmail);
+
+  if (!user && targetEmail !== 'pembeli@trio.com' && targetEmail !== 'penjual@trio.com') {
+    return { error: true, message: 'Email tidak ditemukan. Silakan periksa kembali atau gunakan akun demo.' };
+  }
+
+  const activeUser = user || (targetEmail === 'penjual@trio.com' ? DEMO_SELLER : DEMO_BUYER);
+
+  // Simple password check (demo accepts password123 or any 6+ chars)
+  if (password && password !== 'password123' && activeUser.password && password !== activeUser.password) {
+    return { error: true, message: 'Kata sandi tidak sesuai. Akun demo menggunakan kata sandi: password123' };
+  }
+
+  // 2FA Check if enabled
+  if (activeUser.twoFactorEnabled && !bypass2FA) {
+    if (!otpCode) {
+      // Step 1 Passed: Request 2FA Verification Step
+      return {
+        error: false,
+        requires2FA: true,
+        message: 'Verifikasi 2 Langkah Diperlukan',
+        data: {
+          email: activeUser.email,
+          name: activeUser.name,
+          role: activeUser.role,
+          secretKey: activeUser.twoFactorSecret || 'TRIO2025AUTHKEY'
+        }
+      };
+    }
+
+    // Step 2 Verification
+    const isValidOtp = verifyTotpCode(otpCode, activeUser.twoFactorSecret || 'TRIO2025AUTHKEY');
+    if (!isValidOtp) {
+      return { 
+        error: true, 
+        message: 'Kode verifikasi 2FA tidak valid atau sudah kedaluwarsa. Gunakan token aktif atau 123456.' 
+      };
+    }
+  }
+
+  // Login successful
   const token = `jwt-trio-${Date.now()}`;
   localStorage.setItem('accessToken', token);
-
-  const activeUser = user || {
-    ...defaultUser,
-    email
-  };
   setStorage('trio_active_user', activeUser);
 
   return {
     error: false,
+    requires2FA: false,
     data: { accessToken: token, user: activeUser },
-    message: 'Login successful'
+    message: `Login berhasil sebagai ${activeUser.role === 'seller' ? 'Penjual Mitra' : 'Pembeli'}`
   };
 }
 
-export async function register({ name, email, password, phone }) {
+export async function register({ name, email, password, phone, role = 'buyer', storeName = '', enable2FA = true }) {
   await new Promise(r => setTimeout(r, 150));
-  const users = getStorage('trio_registered_users', [defaultUser]);
-  if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-    return { error: true, message: 'Email sudah terdaftar. Silakan gunakan email lain.' };
+  const users = getStorage('trio_registered_users', [DEMO_BUYER, DEMO_SELLER]);
+  const cleanEmail = email.trim().toLowerCase();
+
+  if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
+    return { error: true, message: 'Email sudah terdaftar. Silakan gunakan email lain atau masuk dengan akun demo.' };
   }
+
+  const isSeller = role === 'seller';
   const newUser = {
     id: `usr-${Date.now()}`,
-    name,
-    email,
+    name: name.trim(),
+    email: cleanEmail,
+    password: password || 'password123',
     phone: phone || '0812-0000-0000',
-    role: 'Member',
+    role: isSeller ? 'seller' : 'buyer',
+    roleLabel: isSeller ? 'Official Store & Penjual Mitra' : 'Pembeli Terverifikasi',
+    storeName: isSeller ? (storeName.trim() || `${name} Official Store`) : '',
+    twoFactorEnabled: !!enable2FA,
+    twoFactorSecret: `TRIO${Date.now().toString(36).toUpperCase()}KEY`,
     addresses: [
       {
         id: `addr-${Date.now()}`,
-        label: 'Alamat Utama',
-        name,
+        label: isSeller ? 'Alamat Gudang / Toko' : 'Alamat Rumah / Pengiriman',
+        name: isSeller ? (storeName || name) : name,
         phone: phone || '0812-0000-0000',
         street: 'Jl. Merdeka No. 10',
         city: 'DKI Jakarta 10110',
@@ -706,25 +825,26 @@ export async function register({ name, email, password, phone }) {
       }
     ]
   };
+
   users.push(newUser);
   setStorage('trio_registered_users', users);
-  return { error: false, data: newUser, message: 'Pendaftaran berhasil' };
+  return { error: false, data: newUser, message: 'Pendaftaran akun berhasil! Silakan masuk.' };
 }
 
 export async function getUserLogged() {
   await new Promise(r => setTimeout(r, 40));
-  const user = getStorage('trio_active_user', defaultUser);
+  const user = getStorage('trio_active_user', DEMO_BUYER);
   return { error: false, data: user, message: 'Success' };
 }
 
 export async function updateUserProfile(updatedFields) {
   await new Promise(r => setTimeout(r, 60));
-  let user = getStorage('trio_active_user', defaultUser);
+  let user = getStorage('trio_active_user', DEMO_BUYER);
   user = { ...user, ...updatedFields };
   setStorage('trio_active_user', user);
 
   // Update in registered users list as well
-  const users = getStorage('trio_registered_users', [defaultUser]);
+  const users = getStorage('trio_registered_users', [DEMO_BUYER, DEMO_SELLER]);
   const idx = users.findIndex(u => u.id === user.id);
   if (idx > -1) {
     users[idx] = user;

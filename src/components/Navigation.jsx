@@ -6,6 +6,7 @@ import { useLocale } from "../contexts/LocaleContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useCart } from "../contexts/CartContext";
+import { useCompare } from "../contexts/CompareContext";
 import { getStoredOrders } from "../utils/api";
 import SearchBar from "./SearchBar";
 import OrderModal from "./OrderModal";
@@ -23,7 +24,8 @@ import {
   Globe,
   Compass,
   Sun,
-  Moon
+  Moon,
+  Scale
 } from "lucide-react";
 
 export default function Navigation() {
@@ -36,6 +38,7 @@ export default function Navigation() {
   const { isDark, toggleTheme } = useTheme();
   const { wishlistCount } = useWishlist();
   const { cartCount } = useCart();
+  const { compareCount } = useCompare();
   
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -209,6 +212,21 @@ export default function Navigation() {
                 )}
               </Link>
 
+              {/* Compare Link */}
+              <Link
+                to="/compare"
+                className="relative p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Perbandingan Produk"
+                title="Bandingkan Barang (Compare)"
+              >
+                <Scale size={20} />
+                {compareCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                    {compareCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Cart Link (Public for Guests too) */}
               <Link 
                 to="/cart" 
@@ -262,8 +280,12 @@ export default function Navigation() {
                     <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700">
                       <p className="text-xs font-black text-slate-900 dark:text-white truncate">{authUser.name}</p>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{authUser.email}</p>
-                      <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
-                        {authUser.role || "VIP Member"}
+                      <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                        authUser.role === 'seller'
+                          ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                          : "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300"
+                      }`}>
+                        {authUser.role === 'seller' ? "🏪 Penjual Mitra (Official)" : "🛒 Pembeli Terverifikasi"}
                       </span>
                     </div>
 
@@ -287,9 +309,13 @@ export default function Navigation() {
                     <Link
                       to="/add-product"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-blue-600 transition-colors"
+                      className={`flex items-center gap-2.5 px-4 py-2.5 text-xs transition-colors ${
+                        authUser.role === 'seller'
+                          ? "text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100"
+                          : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 hover:text-blue-600"
+                      }`}
                     >
-                      <PlusCircle size={16} />
+                      <PlusCircle size={16} className={authUser.role === 'seller' ? "text-emerald-600" : ""} />
                       <span>{locale === "id" ? "Tambah Produk (Jual)" : "Add Product (Sell)"}</span>
                     </Link>
 

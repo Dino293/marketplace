@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { useLocale } from "../contexts/LocaleContext";
@@ -31,6 +31,42 @@ export default function CartPage() {
   const { authUser } = useAuth();
   const navigate = useNavigate();
 
+  // Selection state for items in cart (default select all)
+  const [selectedItemIds, setSelectedItemIds] = useState(() => cartItems.map(item => item.cartItemId));
+
+  // Sync selectedItemIds when cartItems change (auto-select new items, clean deleted)
+  useEffect(() => {
+    setSelectedItemIds(prev => {
+      const validIds = cartItems.map(i => i.cartItemId);
+      const filtered = prev.filter(id => validIds.includes(id));
+      // If newly added or initial load with empty selection, select all valid items
+      if (filtered.length === 0 && validIds.length > 0 && prev.length === 0) {
+        return validIds;
+      }
+      return filtered.length > 0 ? filtered : validIds;
+    });
+  }, [cartItems]);
+
+  const handleToggleSelectItem = (cartItemId) => {
+    setSelectedItemIds(prev => {
+      if (prev.includes(cartItemId)) {
+        return prev.filter(id => id !== cartItemId);
+      } else {
+        return [...prev, cartItemId];
+      }
+    });
+  };
+
+  const allSelected = cartItems.length > 0 && selectedItemIds.length === cartItems.length;
+
+  const handleToggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedItemIds([]);
+    } else {
+      setSelectedItemIds(cartItems.map(i => i.cartItemId));
+    }
+  };
+
   // Checkout modal & state
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState("form"); // 'form' | 'success'
@@ -51,8 +87,11 @@ export default function CartPage() {
   };
   const [address, setAddress] = useState(defaultAddress);
 
-  // Subtotal calculation
-  const subtotal = cartItems.reduce((total, item) => {
+  // Filter items by user selection
+  const selectedItems = cartItems.filter(item => selectedItemIds.includes(item.cartItemId));
+
+  // Subtotal calculation - ONLY for selected items
+  const subtotal = selectedItems.reduce((total, item) => {
     const itemPrice = item.price || 0;
     const qty = item.quantity || 1;
     return total + (itemPrice * qty);
@@ -65,7 +104,7 @@ export default function CartPage() {
     gosend: 35000
   };
   const rawShippingFee = courierFees[selectedCourier] || 15000;
-  let shippingFee = subtotal > 1000000 ? 0 : rawShippingFee;
+  let shippingFee = subtotal > 1000000 || subtotal === 0 ? 0 : rawShippingFee;
 
   // Voucher discount calculation
   let voucherDiscount = 0;
@@ -81,6 +120,13 @@ export default function CartPage() {
 
   const handleApplyVoucher = (e) => {
     e.preventDefault();
+    if (subtotal === 0) {
+      showToast(
+        locale === "id" ? "Pilih minimal 1 barang untuk menggunakan kupon promo" : "Select at least 1 item to apply coupon",
+        "warning"
+      );
+      return;
+    }
     const result = validateVoucher(voucherInput, subtotal);
     if (!result.valid) {
       showToast(result.message, "error");
@@ -96,7 +142,32 @@ export default function CartPage() {
     showToast("Kupon diskon dihapus", "info");
   };
 
+  const handleDecreaseQuantity = (item) => {
+    const currentQty = item.quantity || 1;
+    if (currentQty > 1) {
+      updateQuantity(item.cartItemId, currentQty - 1);
+    } else {
+      // Nominal batas 1: tetap ngestack di 1, tidak hilang kecuali tombol sampah ditekan
+      showToast(
+        locale === "id" 
+          ? "Jumlah minimal adalah 1. Tekan ikon tempat sampah merah jika ingin menghapus barang ini." 
+          : "Minimum quantity is 1. Click trash icon if you want to remove this item.",
+        "info"
+      );
+    }
+  };
+
   const handleOpenCheckout = () => {
+    if (selectedItems.length === 0) {
+      showToast(
+        locale === "id"
+          ? "Silakan centang/pilih minimal 1 barang di keranjang untuk dibeli."
+          : "Please select at least 1 item to proceed to checkout.",
+        "warning"
+      );
+      return;
+    }
+
     if (!authUser) {
       showToast(
         locale === "id"
@@ -112,14 +183,16 @@ export default function CartPage() {
   };
 
   const handleCompleteOrder = async () => {
+    if (selectedItems.length === 0) return;
     try {
       const randomInv = "INV-TRIO-" + Math.floor(100000 + Math.random() * 900000);
       setOrderNumber(randomInv);
       const orderPayload = {
         id: randomInv,
         date: new Date().toISOString(),
-        items: cartItems.map(p => ({
+        items: selectedItems.map(p => ({
           id: p.productId,
+          cartItemId: p.cartItemId,
           title: p.title,
           price: p.price,
           variant: p.selectedVariant ? `${p.selectedVariant.color} • ${p.selectedVariant.storage}` : null,
@@ -189,69 +262,107 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Cart Items List */}
           <div className="lg:col-span-8 space-y-4">
+            {/* Select All Bar */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center justify-between">
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={handleToggleSelectAll}
+                  className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                />
+                <span className="text-xs font-bold text-slate-800">
+                  {locale === "id" ? `Pilih Semua (${cartItems.length} barang)` : `Select All (${cartItems.length} items)`}
+                </span>
+              </label>
+              <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+                {selectedItems.length} {locale === "id" ? "dari" : "of"} {cartItems.length} {locale === "id" ? "barang dicentang" : "items selected"}
+              </span>
+            </div>
+
             <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-xs divide-y divide-slate-100">
-              {cartItems.map((item) => (
-                <div key={item.cartItemId} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  {/* Image & Title */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-50 border border-slate-200/80 p-2 shrink-0 flex items-center justify-center">
-                      <img 
-                        src={item.image || "/terlaris/1.jpg"} 
-                        alt={item.title} 
-                        className="w-full h-full object-contain"
-                        onError={(e) => { e.target.src = "/terlaris/1.jpg"; }}
+              {cartItems.map((item) => {
+                const isSelected = selectedItemIds.includes(item.cartItemId);
+                const qty = item.quantity || 1;
+                return (
+                  <div key={item.cartItemId} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    {/* Checkbox + Image & Title */}
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelectItem(item.cartItemId)}
+                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer accent-blue-600 shrink-0"
+                        title={locale === "id" ? "Centang untuk membeli barang ini" : "Select to purchase"}
                       />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md inline-block mb-1">
-                        {item.brand || "TRIO"}
-                      </span>
-                      <h3 className="font-bold text-slate-900 text-xs sm:text-sm">
-                        {item.title}
-                      </h3>
-                      {item.selectedVariant && (
-                        <p className="text-[11px] text-slate-500 font-medium">
-                          Varian: {item.selectedVariant.color} • {item.selectedVariant.storage}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-50 border border-slate-200/80 p-2 shrink-0 flex items-center justify-center">
+                        <img 
+                          src={item.image || "/terlaris/1.jpg"} 
+                          alt={item.title} 
+                          className="w-full h-full object-contain"
+                          onError={(e) => { e.target.src = "/terlaris/1.jpg"; }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md inline-block mb-1">
+                          {item.brand || "TRIO"}
+                        </span>
+                        <h3 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                          {item.title}
+                        </h3>
+                        {item.selectedVariant && (
+                          <p className="text-[11px] text-slate-500 font-medium">
+                            Varian: {item.selectedVariant.color} • {item.selectedVariant.storage}
+                          </p>
+                        )}
+                        <p className="text-xs sm:text-sm font-extrabold text-blue-600 mt-1">
+                          Rp {item.price?.toLocaleString("id-ID")}
                         </p>
-                      )}
-                      <p className="text-xs sm:text-sm font-extrabold text-blue-600 mt-1">
-                        Rp {item.price?.toLocaleString("id-ID")}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Quantity & Delete */}
-                  <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                    <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 p-1">
-                      <button
-                        onClick={() => updateQuantity(item.cartItemId, (item.quantity || 1) - 1)}
-                        className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs cursor-pointer"
-                        title="Kurang"
-                      >
-                        <Minus size={13} />
-                      </button>
-                      <span className="w-8 text-center text-xs font-bold text-slate-800">
-                        {item.quantity || 1}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.cartItemId, (item.quantity || 1) + 1)}
-                        className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-2xs cursor-pointer"
-                        title="Tambah"
-                      >
-                        <Plus size={13} />
-                      </button>
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() => removeFromCart(item.cartItemId)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Hapus item"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {/* Quantity & Delete */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
+                      <div className="flex items-center border border-slate-200 rounded-xl bg-slate-50 p-1">
+                        <button
+                          type="button"
+                          onClick={() => handleDecreaseQuantity(item)}
+                          disabled={qty <= 1}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                            qty <= 1
+                              ? "bg-slate-100 text-slate-300 cursor-not-allowed"
+                              : "bg-white text-slate-700 hover:bg-slate-200 shadow-2xs cursor-pointer active:scale-95"
+                          }`}
+                          title={qty <= 1 ? "Batas minimal 1 barang (tetap ngestack, tekan ikon sampah merah untuk hapus)" : "Kurang"}
+                        >
+                          <Minus size={13} />
+                        </button>
+                        <span className="w-8 text-center text-xs font-bold text-slate-800">
+                          {qty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.cartItemId, qty + 1)}
+                          className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-slate-700 hover:bg-slate-200 shadow-2xs cursor-pointer active:scale-95 transition-all"
+                          title="Tambah"
+                        >
+                          <Plus size={13} />
+                        </button>
+                      </div>
+
+                      {/* Tombol Logo Sampah / Hapus */}
+                      <button
+                        type="button"
+                        onClick={() => removeFromCart(item.cartItemId)}
+                        className="p-2 rounded-xl text-rose-500 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-200 transition-all cursor-pointer"
+                        title={locale === "id" ? "Hapus barang dari keranjang" : "Remove item from cart"}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Voucher Section */}
@@ -334,7 +445,7 @@ export default function CartPage() {
 
             <div className="space-y-2.5 text-xs text-slate-600">
               <div className="flex justify-between">
-                <span>Total Harga ({cartItems.length} produk)</span>
+                <span>{locale === "id" ? `Total Harga (${selectedItems.length} barang dipilih)` : `Total Price (${selectedItems.length} items)`}</span>
                 <span className="font-bold text-slate-900">Rp {subtotal.toLocaleString("id-ID")}</span>
               </div>
 
@@ -371,9 +482,18 @@ export default function CartPage() {
 
             <button
               onClick={handleOpenCheckout}
-              className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all"
+              disabled={selectedItems.length === 0}
+              className={`w-full py-3.5 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+                selectedItems.length === 0
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 cursor-pointer active:scale-98"
+              }`}
             >
-              <span>Lanjut ke Pembayaran</span>
+              <span>
+                {selectedItems.length === 0
+                  ? (locale === "id" ? "Pilih Barang Terlebih Dahulu" : "Select Items First")
+                  : (locale === "id" ? `Lanjut ke Pembayaran (${selectedItems.length})` : `Proceed to Checkout (${selectedItems.length})`)}
+              </span>
               <ArrowRight size={16} />
             </button>
 

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, ShoppingBag, Star, AlertCircle } from "lucide-react";
+import { Heart, ShoppingBag, Star, AlertCircle, Scale } from "lucide-react";
 import { useLocale } from "../contexts/LocaleContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useCart } from "../contexts/CartContext";
+import { useCompare } from "../contexts/CompareContext";
 
 const ProductCard = ({ product, showDiscount = false, onWishlistUpdate }) => {
   const [loadingWishlist, setLoadingWishlist] = useState(false);
@@ -12,8 +13,10 @@ const ProductCard = ({ product, showDiscount = false, onWishlistUpdate }) => {
   const { locale } = useLocale();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const { toggleCompare, isInCompare } = useCompare();
 
   const inWishlist = isInWishlist(product.id);
+  const inCompare = isInCompare(product.id);
 
   const handleToggleWishlist = async (e) => {
     e.preventDefault();
@@ -150,19 +153,38 @@ const ProductCard = ({ product, showDiscount = false, onWishlistUpdate }) => {
               </span>
             </div>
 
-            <button 
-              type="button"
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`p-2 rounded-xl transition-all cursor-pointer ${
-                isOutOfStock 
-                  ? "bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed" 
-                  : "bg-blue-50 dark:bg-slate-700 hover:bg-blue-600 dark:hover:bg-blue-600 text-blue-600 dark:text-blue-300 hover:text-white dark:hover:text-white shadow-xs"
-              }`}
-              title={isOutOfStock ? "Stok Habis" : "Tambah ke Keranjang"}
-            >
-              <ShoppingBag size={16} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleCompare(product);
+                }}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  inCompare
+                    ? "bg-blue-600 text-white shadow-xs scale-105"
+                    : "bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-200"
+                }`}
+                title={inCompare ? "Hapus dari perbandingan" : "Bandingkan produk (Compare)"}
+              >
+                <Scale size={15} />
+              </button>
+
+              <button 
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  isOutOfStock 
+                    ? "bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed" 
+                    : "bg-blue-50 dark:bg-slate-700 hover:bg-blue-600 dark:hover:bg-blue-600 text-blue-600 dark:text-blue-300 hover:text-white dark:hover:text-white shadow-xs"
+                }`}
+                title={isOutOfStock ? "Stok Habis" : "Tambah ke Keranjang"}
+              >
+                <ShoppingBag size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </Link>

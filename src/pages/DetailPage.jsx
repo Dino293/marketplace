@@ -17,13 +17,15 @@ import {
   AlertCircle,
   MessageSquare,
   Send,
-  Sparkles
+  Sparkles,
+  Scale
 } from "lucide-react";
 import { useToast } from "../contexts/ToastContext";
 import { useLocale } from "../contexts/LocaleContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useCompare } from "../contexts/CompareContext";
 
 export default function DetailPage() {
   const { id } = useParams();
@@ -47,6 +49,7 @@ export default function DetailPage() {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
   const { authUser } = useAuth();
+  const { toggleCompare, isInCompare } = useCompare();
 
   useEffect(() => {
     async function loadData() {
@@ -363,6 +366,23 @@ export default function DetailPage() {
                 title={inWishlist ? "Hapus dari Wishlist" : "Simpan ke Wishlist"}
               >
                 <Heart size={20} fill={inWishlist ? "currentColor" : "none"} />
+              </button>
+
+              {/* Compare Button */}
+              <button
+                type="button"
+                onClick={() => toggleCompare(product)}
+                className={`p-3.5 rounded-2xl border transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  isInCompare(product.id)
+                    ? "bg-blue-600 border-blue-600 text-white shadow-xs"
+                    : "bg-white border-slate-200 text-slate-600 hover:text-blue-600 hover:bg-slate-50"
+                }`}
+                title={isInCompare(product.id) ? "Hapus dari Perbandingan" : "Bandingkan Produk (Compare)"}
+              >
+                <Scale size={20} />
+                <span className="text-xs font-bold hidden sm:inline">
+                  {isInCompare(product.id) ? "Dibandingkan" : "Bandingkan"}
+                </span>
               </button>
             </div>
           </div>

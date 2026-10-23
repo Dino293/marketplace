@@ -1,0 +1,128 @@
+{
+  "metadata": {
+    "title": "Dataset Tanya Jawab AI PT. TRIO Distribusi",
+    "version": "2.0.0",
+    "contact": {
+      "whatsapp": "+628971419924",
+      "email": "muhindra293@gmail.com",
+      "company": "PT. TRIO Distribusi Indonesia"
+    },
+    "description": "Dataset Q&A multi-sheet terstruktur untuk Chatbot Asisten Cerdas Marketplace PT. TRIO Distribusi"
+  },
+  "sheets": [
+    {
+      "id": "pesanan",
+      "sheetName": "Pemesanan & Pembayaran",
+      "faqs": [
+        {
+          "id": "pesan-1",
+          "query": ["cara beli", "cara pesan", "cara order", "beli barang", "checkout"],
+          "question": "Bagaimana cara melakukan pemesanan di marketplace ini?",
+          "answer": "Untuk melakukan pemesanan:\n1. Pilih produk gadget atau aksesori resmi di katalog.\n2. Klik tombol 'Tambah ke Keranjang' atau 'Beli Langsung'.\n3. Di halaman Keranjang, centang produk yang ingin Anda beli.\n4. Masukkan kode kupon diskon jika ada (seperti TRIOBARU atau ONGKIRGRATIS).\n5. Klik 'Lanjut ke Pembayaran', pilih kurir ekspedisi dan metode pembayaran (QRIS atau Virtual Account).\n6. Selesaikan transaksi dan nomor resi pesanan akan otomatis terbit!",
+          "tags": ["pemesanan", "order", "panduan"]
+        },
+        {
+          "id": "pesan-2",
+          "query": ["metode bayar", "cara bayar", "qris", "virtual account", "transfer"],
+          "question": "Metode pembayaran apa saja yang didukung?",
+          "answer": "PT. TRIO Distribusi mendukung metode pembayaran otomatis dan aman:\n- QRIS Dinamis (BCA, Mandiri, GoPay, OVO, ShopeePay, Dana, LinkAja)\n- BCA Virtual Account\n- Mandiri Virtual Account\nSemua pembayaran terverifikasi otomatis dalam 10 detik tanpa perlu konfirmasi manual.",
+          "tags": ["pembayaran", "qris", "va"]
+        },
+        {
+          "id": "pesan-3",
+          "query": ["kupon", "voucher", "diskon", "promo", "kode promo"],
+          "question": "Apa saja kode voucher atau kupon diskon yang tersedia?",
+          "answer": "Anda dapat menggunakan kupon resmi kami di keranjang belanja:\n- TRIOBARU: Diskon 10% s.d Rp 500.000 untuk pengguna baru\n- ONGKIRGRATIS: Potongan ongkir Rp 20.000 (min belanja 500rb)\n- HEMAT50: Potongan langsung Rp 50.000 (min belanja 500rb)\nKupon dapat dipasang langsung sebelum proses checkout.",
+          "tags": ["promo", "voucher", "kupon"]
+        }
+      ]
+    },
+    {
+      "id": "pengiriman",
+      "sheetName": "Ekspedisi & Pengiriman",
+      "faqs": [
+        {
+          "id": "kirim-1",
+          "query": ["ekspedisi", "kurir", "sicepat", "jne", "gosend", "ongkir"],
+          "question": "Pilihan kurir ekspedisi apa yang tersedia?",
+          "answer": "Kami bekerja sama dengan ekspedisi resmi terpercaya:\n1. SiCepat Best: Estimasi 1-2 hari kerja (Rp 15.000)\n2. JNE Reguler: Estimasi 2-3 hari kerja (Rp 22.000)\n3. GoSend Instant: Tiba di hari yang sama khusus Jabodetabek (Rp 35.000)\nSemua pesanan di atas Rp 1.000.000 otomatis mendapatkan GRATIS ONGKIR ke seluruh kota besar!",
+          "tags": ["pengiriman", "kurir", "ongkir"]
+        },
+        {
+          "id": "kirim-2",
+          "query": ["lacak pesanan", "cek resi", "status pengiriman", "resi", "tracking"],
+          "question": "Bagaimana cara melacak pesanan dan memeriksa nomor resi?",
+          "answer": "Anda dapat melacak status pesanan secara real-time:\n1. Buka menu akun di pojok kanan atas.\n2. Klik menu 'Riwayat Pesanan'.\n3. Di sana Anda dapat melihat invoice, nomor resi ekspedisi, serta linimasa status perjalanan paket Anda mulai dari gudang distributor hingga tiba di tujuan.",
+          "tags": ["resi", "lacak", "tracking"]
+        },
+        {
+          "id": "kirim-3",
+          "query": ["packing", "asuransi", "aman", "bubble wrap", "kayu"],
+          "question": "Apakah pengiriman gadget aman dan bergaransi?",
+          "answer": "Sangat aman! Setiap pengiriman gadget dari PT. TRIO Distribusi dilengkapi:\n- Lapisan bubble wrap tebal berlapis\n- Box karton segel hologram distributor resmi\n- Asuransi kehilangan & kerusakan 100% GRATIS ditanggung PT. TRIO Distribusi.",
+          "tags": ["packing", "keamanan", "asuransi"]
+        }
+      ]
+    },
+    {
+      "id": "garansi",
+      "sheetName": "Garansi & Keaslian Distributor",
+      "faqs": [
+        {
+          "id": "gar-1",
+          "query": ["garansi", "asli", "original", "sein", "ibox", "resmi"],
+          "question": "Apakah semua produk 100% Original dan bergaransi resmi?",
+          "answer": "Ya, 100% DIJAMIN ORIGINAL & BERGARANSI RESMI. PT. TRIO Distribusi adalah authorized partner terdaftar di Indonesia. Semua unit smartphone, tablet, dan audio memiliki garansi resmi pabrikan selama 1 tahun (SEIN untuk Samsung, iBox/GDN untuk Apple, Xiaomi Indonesia, dll).",
+          "tags": ["garansi", "original", "keaslian"]
+        },
+        {
+          "id": "gar-2",
+          "query": ["klaim garansi", "servis", "service center", "rusak", "retur"],
+          "question": "Bagaimana prosedur klaim garansi jika barang bermasalah?",
+          "answer": "Prosedur klaim garansi sangat mudah:\n1. Unit dapat dibawa langsung ke seluruh Service Center resmi terdekat di kota Anda dengan menunjukkan invoice digital dari aplikasi ini.\n2. Khusus 7 hari pertama setelah barang diterima, berlaku garansi 'Ganti Unit Baru (1 to 1 Replacement)' jika terdapat cacat pabrik.",
+          "tags": ["klaim", "servis", "retur"]
+        }
+      ]
+    },
+    {
+      "id": "penjual",
+      "sheetName": "Kemitraan Penjual / Reseller",
+      "faqs": [
+        {
+          "id": "jual-1",
+          "query": ["jual barang", "tambah produk", "mitra", "seller", "daftar penjual"],
+          "question": "Bagaimana cara menjadi penjual (mitra) dan menambah produk?",
+          "answer": "Untuk menjadi penjual resmi:\n1. Daftarkan akun Anda di halaman Register dan pilih 'Sebagai Penjual (Mitra)'.\n2. Anda juga dapat menggunakan akun demo penjual: penjual@trio.com (password: password123).\n3. Setelah masuk, buka menu 'Tambah Produk (Jual)' untuk mempublikasikan produk dengan upload foto lokal atau link web.",
+          "tags": ["seller", "penjual", "tambah produk"]
+        },
+        {
+          "id": "jual-2",
+          "query": ["komisi", "biaya", "fee", "pajak"],
+          "question": "Berapa biaya kemitraan untuk penjual di PT. TRIO Distribusi?",
+          "answer": "Pendaftaran mitra penjual 100% GRATIS tanpa biaya langganan bulanan. Kami memberikan potongan harga grosir distributor sehingga mitra penjual dapat memperoleh margin keuntungan maksimal.",
+          "tags": ["komisi", "biaya", "reseller"]
+        }
+      ]
+    },
+    {
+      "id": "kontak",
+      "sheetName": "Kontak Langsung & Lokasi",
+      "faqs": [
+        {
+          "id": "kontak-1",
+          "query": ["kontak", "whatsapp", "wa", "telepon", "hubungi", "call center"],
+          "question": "Bagaimana cara menghubungi kontak resmi atau WhatsApp pengelola?",
+          "answer": "Anda dapat menghubungi layanan bantuan langsung kami:\n- WhatsApp / Telepon: +62 897-1419-924 (08971419924)\n- Email / Gmail: muhindra293@gmail.com\n- Layanan Pelanggan: Aktif 24/7 Responsif untuk konsultasi produk dan transaksi.",
+          "tags": ["kontak", "wa", "email"]
+        },
+        {
+          "id": "kontak-2",
+          "query": ["lokasi", "alamat", "kantor", "gudang", "dimana"],
+          "question": "Di mana alamat kantor pusat dan lokasi gudang PT. TRIO Distribusi?",
+          "answer": "Kantor Pusat PT. TRIO Distribusi:\nGedung TRIO Plaza Lantai 5, Jl. Jend. Sudirman Kav. 21, Jakarta Selatan, DKI Jakarta 12920.\nPusat Logistik & Gudang:\nPusat Logistik Berikat Blok B7, Cakung, Jakarta Timur 13910.",
+          "tags": ["lokasi", "alamat", "kantor"]
+        }
+      ]
+    }
+  ]
+}

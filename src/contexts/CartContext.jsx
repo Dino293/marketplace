@@ -101,7 +101,11 @@ export function CartProvider({ children }) {
       setLoading(true);
       const res = await apiCheckout(orderDetails);
       if (!res.error) {
-        setCartItems([]);
+        if (Array.isArray(res.remainingCart)) {
+          setCartItems(res.remainingCart);
+        } else {
+          setCartItems([]);
+        }
       }
       return res;
     } finally {
