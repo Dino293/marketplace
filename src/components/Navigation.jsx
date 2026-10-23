@@ -10,6 +10,7 @@ import { useCompare } from "../contexts/CompareContext";
 import { getStoredOrders } from "../utils/api";
 import SearchBar from "./SearchBar";
 import OrderModal from "./OrderModal";
+import NotificationBell from "./NotificationBell";
 import {
   User,
   Heart,
@@ -241,6 +242,9 @@ export default function Navigation() {
                   </span>
                 )}
               </Link>
+
+              {/* Realtime Notification Center & CloudAMQP RabbitMQ Monitor */}
+              <NotificationBell />
 
               {/* User Dropdown */}
               <div className="relative" ref={userMenuRef}>

@@ -659,6 +659,15 @@ export default function CartPage() {
                     <span className="text-slate-500">Status Pengiriman:</span>
                     <span className="text-emerald-600 font-bold">Sedang Diproses Gudang</span>
                   </div>
+                  <div className="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-emerald-800 dark:text-emerald-300">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                      Antrean Pesanan:
+                    </span>
+                    <span className="font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded text-[10px]">
+                      CloudAMQP trio_order_queue (Sent)
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">

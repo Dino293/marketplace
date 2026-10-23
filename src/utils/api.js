@@ -1,4 +1,12 @@
 // src/utils/api.js - Persistent Multi-Entity Data Layer for PT. TRIO Distribusi MarketPlace
+import {
+  isSupabaseConfigured,
+  fetchSupabaseProducts,
+  insertSupabaseProduct,
+  fetchSupabaseOrders,
+  insertSupabaseOrder
+} from './supabaseClient';
+import { publishOrderEvent } from './rabbitmq';
 
 const initialProducts = [
   {
@@ -367,8 +375,35 @@ function setStorage(key, value) {
 // Products API
 // -----------------------------------------------------------------------------
 export async function getProducts({ category, brand, search, sortBy, minPrice, maxPrice } = {}) {
-  await new Promise(r => setTimeout(r, 80));
+  await new Promise(r => setTimeout(r, 60));
   let list = getStorage('trio_products', initialProducts);
+
+  // Sync from Supabase PostgreSQL if configured
+  if (isSupabaseConfigured()) {
+    try {
+      const sbProducts = await fetchSupabaseProducts();
+      if (sbProducts && sbProducts.length > 0) {
+        list = sbProducts.map(p => ({
+          id: String(p.id),
+          title: p.title,
+          brand: p.brand,
+          category: p.category,
+          price: Number(p.price),
+          originalPrice: p.original_price ? Number(p.original_price) : undefined,
+          stock: p.stock,
+          image: p.image,
+          description: p.description,
+          rating: p.rating ? Number(p.rating) : 4.9,
+          reviewsCount: p.reviews_count || 40,
+          specs: p.specs || {},
+          createdAt: p.created_at
+        }));
+        setStorage('trio_products', list);
+      }
+    } catch (e) {
+      console.warn('Fallback to local products cache:', e);
+    }
+  }
 
   // Filter Search
   if (search) {
@@ -451,6 +486,12 @@ export async function addProduct({ title, description, price, originalPrice, cat
     specs: specs || {},
     createdAt: new Date().toISOString()
   };
+
+  // If Supabase is active, persist to database table
+  if (isSupabaseConfigured()) {
+    insertSupabaseProduct(newProduct).catch(err => console.warn('Supabase product insert notice:', err));
+  }
+
   list.unshift(newProduct);
   setStorage('trio_products', list);
   return { error: false, data: newProduct, message: 'Product created successfully' };
@@ -658,6 +699,35 @@ export async function checkout(orderDetails) {
   orders.unshift(newOrder);
   setStorage('trio_orders', orders);
 
+  // 1. Sync to Supabase Database (if configured)
+  if (isSupabaseConfigured()) {
+    insertSupabaseOrder(newOrder).catch(err => console.warn('Supabase order insert notice:', err));
+  }
+
+  // 2. Publish Realtime Message Event to CloudAMQP RabbitMQ!
+  publishOrderEvent(newOrder).then(res => {
+    console.log('🐇 [RabbitMQ Event] Dispatched to CloudAMQP cluster:', res);
+  }).catch(err => {
+    console.warn('RabbitMQ dispatch notice:', err);
+  });
+
+  // 3. Add to In-App Notification Center
+  try {
+    const notifs = getStorage('trio_notifications', []);
+    notifs.unshift({
+      id: `notif-${Date.now()}`,
+      title: `Pesanan Baru: ${newOrder.id}`,
+      message: `Total Rp ${(newOrder.total || 0).toLocaleString('id-ID')} via ${newOrder.paymentMethod || 'QRIS'}. Dikirim ke antrean CloudAMQP RabbitMQ!`,
+      type: 'order',
+      channel: 'CloudAMQP RabbitMQ',
+      time: 'Baru saja',
+      orderId: newOrder.id,
+      unread: true
+    });
+    setStorage('trio_notifications', notifs.slice(0, 20));
+    window.dispatchEvent(new CustomEvent('trio:new_notification'));
+  } catch (e) {}
+
   // Hapus hanya barang yang dibeli dari keranjang, sisakan barang yang tidak dicentang
   let cart = getStorage('trio_cart', []);
   const purchasedCartItemIds = (orderDetails.items || []).map(i => i.cartItemId || i.id);
@@ -665,6 +735,45 @@ export async function checkout(orderDetails) {
   setStorage('trio_cart', cart);
 
   return { error: false, data: newOrder, remainingCart: cart, message: 'Order created successfully' };
+}
+
+// -----------------------------------------------------------------------------
+// Realtime Notification Center API
+// -----------------------------------------------------------------------------
+export function getStoredNotifications() {
+  return getStorage('trio_notifications', [
+    {
+      id: 'notif-default-1',
+      title: 'Selamat Datang di PT. TRIO Distribusi',
+      message: 'Sistem terintegrasi dengan CloudAMQP RabbitMQ untuk pemrosesan antrean pesanan real-time.',
+      type: 'system',
+      channel: 'CloudAMQP RabbitMQ',
+      time: 'Baru saja',
+      unread: true
+    },
+    {
+      id: 'notif-default-2',
+      title: 'Pesanan Contoh: INV-TRIO-784210',
+      message: 'Samsung Galaxy S25 Ultra 5G dalam perjalanan via SiCepat Best.',
+      type: 'order',
+      channel: 'CloudAMQP RabbitMQ',
+      time: '1 jam lalu',
+      unread: false
+    }
+  ]);
+}
+
+export function markNotificationsAsRead() {
+  const notifs = getStoredNotifications().map(n => ({ ...n, unread: false }));
+  setStorage('trio_notifications', notifs);
+  window.dispatchEvent(new CustomEvent('trio:new_notification'));
+  return notifs;
+}
+
+export function clearNotifications() {
+  setStorage('trio_notifications', []);
+  window.dispatchEvent(new CustomEvent('trio:new_notification'));
+  return [];
 }
 
 // -----------------------------------------------------------------------------
